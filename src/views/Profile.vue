@@ -6,7 +6,7 @@
   >
     <v-card>
       <v-card-text>
-        Logging out
+        Выхад з сістэмы
         <v-progress-linear
           indeterminate
           color="white"
@@ -84,9 +84,7 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      if (!profileStore.profileInfo.username) {
-        profileStore.getProfile();
-      }
+
     });
     onUnmounted(() => {
       logoutProcessing.value = false;

@@ -1,153 +1,90 @@
 <template>
   <v-container>
     <v-row justify="start" align="center">
-      <v-col cols="4">
+      <v-col cols="5" v-for="(application, index) in applicationsStore.applications">
         <v-card
           class="mx-auto"
         >
           <v-img
-            src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
+            :src="application.car.imagePath"
             height="200px"
             cover
           ></v-img>
 
           <v-card-title>
-            Geely Atlas Pro
+            {{ application.car.mark }} {{ application.car.model }}
           </v-card-title>
 
           <v-card-subtitle>
-            Запись на тест-драйв 12.04.2023 12:00
+            Запіс на тэст-драйв {{ application.date.date }}
           </v-card-subtitle>
 
-          <v-card-actions>
+          <v-card-actions v-if="application.status.name === 'APPROVED'">
             <v-btn
               variant="text"
               color="success"
               prepend-icon="mdi-clock-check"
               disabled
             >
-              одобрено
+              ухвалена
             </v-btn>
 
             <v-btn
               variant="text"
               color="error"
-              prepend-icon="mdi-cancel"
+              prepend-icon="mdi-close"
+              :loading="application.isSecondButtonLoading"
+              :disabled="application.isSecondButtonLoading"
+              @click="onChangeApplicationStatus(application.id, 3, false, index)"
             >
-              отменить
+              адхіліць
             </v-btn>
           </v-card-actions>
-        </v-card>
-      </v-col>
-
-      <v-col cols="4">
-        <v-card
-          class="mx-auto"
-        >
-          <v-img
-            src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
-            height="200px"
-            cover
-          ></v-img>
-
-          <v-card-title>
-            Geely Atlas Pro
-          </v-card-title>
-
-          <v-card-subtitle>
-            Запись на тест-драйв 12.04.2023 12:00
-          </v-card-subtitle>
-
-          <v-card-actions>
+          <v-card-actions v-if="application.status.name === 'IN_PROGRESS'">
             <v-btn
               variant="text"
               color="warning"
               prepend-icon="mdi-clock-alert"
               disabled
             >
-              на рассмотрении
+              на разглядзе
             </v-btn>
             <v-btn
               variant="text"
               color="error"
-              prepend-icon="mdi-cancel"
+              prepend-icon="mdi-close"
+              :loading="application.isSecondButtonLoading"
+              :disabled="application.isSecondButtonLoading"
+              @click="onChangeApplicationStatus(application.id, 3, false, index)"
             >
-              отменить
+              адхілць
             </v-btn>
           </v-card-actions>
-        </v-card>
-      </v-col>
-
-      <v-col cols="4">
-        <v-card
-          class="mx-auto"
-        >
-          <v-img
-            src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
-            height="200px"
-            cover
-          ></v-img>
-
-          <v-card-title>
-            Geely Atlas Pro
-          </v-card-title>
-
-          <v-card-subtitle>
-            Запись на тест-драйв 12.04.2023 12:00
-          </v-card-subtitle>
-
-          <v-card-actions>
+          <v-card-actions v-if="application.status.name === 'CANCELED'">
             <v-btn
               variant="text"
               prepend-icon="mdi-clock-remove"
               disabled
             >
-              завершено
-            </v-btn>
-            <v-btn
-              variant="text"
-              color="warning"
-              prepend-icon="mdi-star"
-            >
-              оценить
+              адхілена
             </v-btn>
           </v-card-actions>
-        </v-card>
-      </v-col>
-
-      <v-col cols="4">
-        <v-card
-          class="mx-auto"
-        >
-          <v-img
-            src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
-            height="200px"
-            cover
-          ></v-img>
-
-          <v-card-title>
-            Geely Atlas Pro
-          </v-card-title>
-
-          <v-card-subtitle>
-            Запись на тест-драйв 12.04.2023 12:00
-          </v-card-subtitle>
-
-          <v-card-actions>
+          <v-card-actions v-if="application.status.name === 'REJECTED'">
+            <v-btn
+              variant="text"
+              prepend-icon="mdi-clock-minus"
+              disabled
+            >
+              адмоўлена
+            </v-btn>
+          </v-card-actions>
+          <v-card-actions v-if="application.status.name === 'COMPLETED'">
             <v-btn
               variant="text"
               prepend-icon="mdi-clock-remove"
               disabled
             >
-              завершено
-            </v-btn>
-            <v-btn
-              variant="text"
-              color="warning"
-              prepend-icon="mdi-star-check"
-              disabled
-            >
-              5
+              завершана
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -160,12 +97,27 @@ import {computed, defineComponent, onMounted, onUnmounted, ref} from 'vue';
 import {useProfileStore} from "@/store/profile";
 import router from "@/router";
 import {useField, useForm, useIsFormDirty, useIsFormValid} from "vee-validate";
+import {useApplicationsStore} from "@/store/applications";
 
 export default defineComponent({
   setup() {
+    const applicationsStore = useApplicationsStore();
+    const profileStore = useProfileStore();
 
+    onMounted(() => {
+      if (profileStore.profileInfo)
+        applicationsStore.findApplications(false, profileStore.profileInfo.id).then((resp) => {
+          console.log(resp)
+        })
+    });
+
+    function onChangeApplicationStatus(orderId: number, statusId: number, isFirstButton: boolean, index: number){
+      applicationsStore.changeApplicationStatus(orderId, statusId, isFirstButton, index)
+    }
     return {
+      applicationsStore,
 
+      onChangeApplicationStatus
     }
   }
 })

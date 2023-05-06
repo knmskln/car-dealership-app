@@ -4,47 +4,47 @@
       <v-row no-gutters justify="center" align="center">
         <v-col cols="12">
           <v-card class="pa-6 pt-0">
-            <v-card-title class="text-h4 pa-0 pt-8 pb-8">Sign Up</v-card-title>
+            <v-card-title class="text-h4 pa-0 pt-8 pb-8">Рэгістрацыя</v-card-title>
             <form @submit.prevent="onSubmitSignUp">
               <v-text-field
                 v-model="username.value.value"
                 :error-messages="username.errorMessage.value"
-                label="Username"
+                label="Імя карыстальніка"
               ></v-text-field>
 
               <v-text-field
                 v-model="username.value.value"
                 :error-messages="username.errorMessage.value"
-                label="Full name"
+                label="Прозвішча, імя, імя па бацьку"
               ></v-text-field>
 
               <v-text-field
                 v-model="username.value.value"
                 :error-messages="username.errorMessage.value"
-                label="Phone number"
+                label="Нумар тэлефона"
               ></v-text-field>
 
               <v-text-field
                 v-model="username.value.value"
                 :error-messages="username.errorMessage.value"
-                label="Email"
+                label="E-Mail адрас"
               ></v-text-field>
 
               <v-text-field
                 v-model="password.value.value"
                 :error-messages="password.errorMessage.value"
-                label="Password"
+                label="Пароль"
               ></v-text-field>
 
               <v-text-field
                 v-model="passwordRepeat.value.value"
                 :error-messages="passwordRepeat.errorMessage.value"
-                label="Repeat password"
+                label="Паўтарыце пароль"
               ></v-text-field>
               <v-checkbox
                 v-model="keepMeSigned.value.value"
                 :error-messages="keepMeSigned.errorMessage.value"
-                label="Keep me signed in"
+                label="Захаваць мяне ў сістэме"
                 value="1"
                 type="checkbox"
               ></v-checkbox>
@@ -54,9 +54,9 @@
                 type="submit"
                 :disabled="isFormValid"
               >
-                sign up
+                зарэгістравацца
               </v-btn>
-              Already have an account? <router-link to="/signin" style="text-decoration: none;">Sign In</router-link>
+              У вас ужо ёсць акаўнт? <router-link to="/signin" style="text-decoration: none;">Увайсці</router-link>
             </form>
           </v-card>
         </v-col>

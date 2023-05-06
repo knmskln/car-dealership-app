@@ -1,11 +1,15 @@
 import {defineStore} from 'pinia';
 import {CarType} from "@/types/car";
 import * as carsRequests from "@/requests/cars";
+import {DateType} from "@/types/date";
+import {DealerCenterType} from "@/types/dealer-center";
 
 export const useCarsStore = defineStore({
   id: 'cars',
   state: () => ({
     cars: [] as CarType[],
+    availableSlots: [] as DateType[],
+    availableCenters: [] as DealerCenterType[],
     isCarsFetching: false,
     createNewApplicationDialogMode: false,
     addNewCarDialogMode: false,
@@ -39,6 +43,28 @@ export const useCarsStore = defineStore({
         this.cars = carsResp.data;
         this.isCarsFetching = false;
         return carsResp;
+      } catch (e: any) {
+        throw new Error(e);
+      }
+    },
+    async getSlots(): Promise<any> {
+      let slotsResp;
+      try {
+        slotsResp = await carsRequests.getSlots();
+        this.availableSlots = slotsResp.data;
+
+        return slotsResp.data;
+      } catch (e: any) {
+        throw new Error(e);
+      }
+    },
+    async getCenters(): Promise<any> {
+      let centersResp;
+      try {
+        centersResp = await carsRequests.getCenters();
+        this.availableCenters = centersResp.data;
+
+        return centersResp.data;
       } catch (e: any) {
         throw new Error(e);
       }

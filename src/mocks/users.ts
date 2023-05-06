@@ -23,8 +23,8 @@ export const users = [
     password: '11111113',
     role: ['user'],
     phoneNumber: '+375444554312',
-    fullName: 'Новикова Алена Пашина',
-    email: 'knmskln@yandex.by'
+    fullName: 'Новикова Алена Андреевна',
+    email: 'alena@yandex.by'
   },
   {
     id: 4,

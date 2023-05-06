@@ -5,8 +5,6 @@ import {UserType} from "@/types/user";
 export const useProfileStore = defineStore({
   id: 'profile',
   state: () => ({
-    accessToken: localStorage.getItem('accessToken'),
-    refreshToken: localStorage.getItem('refreshToken'),
     role: localStorage.getItem('role'),
     isSignInFetching: false,
     isSignUpFetching: false,
@@ -17,23 +15,15 @@ export const useProfileStore = defineStore({
     signInErrorActive: false,
     signUpErrorText: '',
     signUpErrorActive: false,
-    profileInfo: {} as UserType,
+    profileInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) as UserType : undefined,
   }),
   actions: {
-    setAccessToken(token: string) {
-      localStorage.setItem('accessToken', token);
-      this.accessToken = token;
-    },
-    setRefreshToken(token: string) {
-      localStorage.setItem('refreshToken', token);
-      this.refreshToken = token;
-    },
     setRole(role: string) {
       localStorage.setItem('role', role);
       this.role = role;
     },
     isLoggedIn(): boolean {
-      return !!this.accessToken && !!this.refreshToken;
+      return !!this.profileInfo;
     },
     isAdmin(): boolean {
       return this.role === 'admin';
@@ -43,9 +33,10 @@ export const useProfileStore = defineStore({
       this.isSignInFetching = true;
       try {
         signInResp = await requests.signIn(username, password);
-        this.setAccessToken(signInResp.password);
-        this.setRefreshToken(signInResp.password);
-        this.setRole(signInResp.role[0]);
+        console.log(signInResp.data);
+        this.profileInfo = signInResp.data;
+        localStorage.setItem('userInfo', JSON.stringify(signInResp.data));
+        this.setRole(signInResp.data.roles[0].split('_')[1].toLowerCase());
         return signInResp;
       } catch (e: any) {
         this.isSignInFetching = false;
@@ -59,7 +50,7 @@ export const useProfileStore = defineStore({
       this.isProfileFetching = true;
       try {
         profileResp = await requests.getProfile();
-        this.profileInfo = profileResp;
+        this.profileInfo = profileResp.data;
         this.isProfileFetching = false;
         return profileResp;
       } catch (e: any) {
@@ -76,13 +67,10 @@ export const useProfileStore = defineStore({
       this.isSignInFetching = value;
     },
     clear() {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userInfo');
       localStorage.getItem('role');
       this.$patch({
-        accessToken: null,
-        refreshToken: null,
-        profileInfo: {},
+        profileInfo: undefined,
         role: '',
       })
     }

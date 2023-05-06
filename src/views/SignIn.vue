@@ -18,25 +18,25 @@
       <v-row no-gutters justify="center" align="center">
         <v-col cols="12">
           <v-card class="pa-6 pt-0">
-            <v-card-title class="text-h4 pa-0 pt-8 pb-8">Sign In</v-card-title>
+            <v-card-title class="text-h4 pa-0 pt-8 pb-8">Уваход</v-card-title>
             <form @submit.prevent="onSubmitSignIn">
               <v-text-field
                 v-model="username.value.value"
                 :error-messages="username.errorMessage.value"
-                label="Username"
+                label="Імя карыстальніка"
               ></v-text-field>
 
               <v-text-field
                 v-model="password.value.value"
                 :error-messages="password.errorMessage.value"
-                label="Password"
+                label="Пароль"
                 type="password"
               ></v-text-field>
 
               <v-checkbox
                 v-model="keepMeSigned.value.value"
                 :error-messages="keepMeSigned.errorMessage.value"
-                label="Keep me signed in"
+                label="Захаваць мяне ў сістэме"
                 value="1"
                 type="checkbox"
               ></v-checkbox>
@@ -47,9 +47,9 @@
                 :disabled="isFormValid || profileStore.isSignInFetching"
                 :loading="profileStore.isSignInFetching"
               >
-                sign in
+                увайсці
               </v-btn>
-              Don't have an account? <router-link to="/signup" style="text-decoration: none;">Sign Up</router-link>
+              У вас няма акаўнта? <router-link to="/signup" style="text-decoration: none;">Зарэгістравацца</router-link>
             </form>
           </v-card>
         </v-col>
@@ -72,11 +72,11 @@ export default defineComponent({
       validationSchema: {
         username (value: string) {
           if (value?.length) return true
-          return 'username can not be empty.'
+          return 'імя карыстальніка не можа быць пустым.'
         },
         password (value: string) {
           if (value?.length) return true
-          return 'password can not be empty.'
+          return 'пароль не можа быць пустым.'
         },
       },
     });

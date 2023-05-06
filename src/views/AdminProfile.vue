@@ -6,7 +6,7 @@
   >
     <v-card>
       <v-card-text>
-        Logging out
+        Выхад з сістэмы
         <v-progress-linear
           indeterminate
           color="white"

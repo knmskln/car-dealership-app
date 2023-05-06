@@ -60,7 +60,7 @@
   >
     <v-card>
       <v-card-text>
-        Logging out
+        Выхад з сістэмы
         <v-progress-linear
           indeterminate
           color="white"
@@ -87,7 +87,7 @@
     <v-container fluid v-if="logoutProcessing === false">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-card :loading="profileStore.isProfileFetching">
+          <v-card v-if="profileStore.profileInfo">
             <v-list lines="two">
               <v-list-subheader>Асноўныя</v-list-subheader>
               <template v-if="profileStore.profileInfo.username">
@@ -111,7 +111,7 @@
                   <v-list-item-title>Прозвішча, імя, імя па бацьку</v-list-item-title>
 
                   <v-list-item-subtitle>
-                    {{ profileStore.profileInfo.fullName }}
+                    {{ profileStore.profileInfo.name }}
                   </v-list-item-subtitle>
                   <template v-slot:append>
                     <v-btn
@@ -126,7 +126,7 @@
                   <v-list-item-title>Нумар тэлефона</v-list-item-title>
 
                   <v-list-item-subtitle>
-                    {{ profileStore.profileInfo.phoneNumber }}
+                    {{ profileStore.profileInfo.number }}
                   </v-list-item-subtitle>
                   <template v-slot:append>
                     <v-btn
@@ -180,15 +180,15 @@ export default defineComponent({
       validationSchema: {
         currentPassword (value: string) {
           if(value?.length) return true;
-          return 'current password can not be empty';
+          return 'сучасны пароль не можа быць пустым';
         },
         passwordChange (value: string) {
           if (value?.length > 8) return true
-          return 'password length needs to be more than 8 symbols'
+          return 'даўжыня пароля павінна быць больш за 8 сімвалаў'
         },
         passwordChangeRepeat (value: string) {
           if (value === passwordChange.value.value) return true
-          return 'passwords are not equal'
+          return 'паролі не супадаюць'
         }
       },
     });
@@ -204,9 +204,6 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      if (!profileStore.profileInfo.username) {
-        profileStore.getProfile();
-      }
     });
     onUnmounted(() => {
       logoutProcessing.value = false;

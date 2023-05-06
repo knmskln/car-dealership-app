@@ -26,6 +26,7 @@
               accept="image/png, image/jpeg, image/bmp"
               placeholder="Изображение"
               label="Изображение"
+              append-inner-icon="mdi-camera"
             ></v-file-input>
             <v-text-field
               v-model="mark"
@@ -82,6 +83,13 @@
       </v-btn>
       <v-btn
         class="mr-2"
+        to="/"
+      >
+        <v-icon start icon="mdi-home"></v-icon>
+        галоўная
+      </v-btn>
+      <v-btn
+        class="mr-2"
         to="/cars"
       >
         <v-icon start icon="mdi-car-multiple"></v-icon>
@@ -105,6 +113,13 @@
       </v-btn>
     </template>
     <template v-else>
+      <v-btn
+        class="mr-2"
+        to="/"
+      >
+        <v-icon start icon="mdi-home"></v-icon>
+        галоўная
+      </v-btn>
       <v-btn
         class="mr-2"
         to="/cars"
@@ -187,8 +202,14 @@ export default defineComponent({
       year,
       price,
       color,
-      onSubmit};
+      onSubmit
+    };
   }
 })
 
 </script>
+<style>
+.v-input__prepend {
+  display: none;
+}
+</style>

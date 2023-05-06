@@ -4,8 +4,8 @@ import {useProfileStore} from "@/store/profile";
 const routes = [
   {
     path: '/',
-    name: 'dialogs',
-    component: () => import('@/views/Dialogs.vue'),
+    name: 'home',
+    component: () => import('@/views/Home.vue'),
   },
   {
     path: '/profile',
@@ -68,7 +68,7 @@ const router = createRouter({
 });
 router.beforeEach((to, from) => {
   const profileStore = useProfileStore();
-  if(!profileStore.isLoggedIn() && (to.name !== 'signin' && to.name !== 'signup' && to.name !== 'cars')){
+  if(!profileStore.isLoggedIn() && (to.name !== 'signin' && to.name !== 'signup' && to.name !== 'cars' && to.name !== 'home')){
     return {name: 'signin'};
   }
   if(!profileStore.isAdmin() && (to.name === 'admin')){

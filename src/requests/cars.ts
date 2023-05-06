@@ -15,3 +15,11 @@ export const getCars = (): Promise<any> => {
   //   else setTimeout(reject, 1000, {message: 'could not receive cars info'});
   // });
 }
+
+export const getSlots = (): Promise<any> => {
+  return axios.get('http://localhost:8080/api/slots');
+}
+
+export const getCenters = (): Promise<any> => {
+  return axios.get('http://localhost:8080/api/centers');
+}
