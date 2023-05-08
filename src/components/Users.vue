@@ -24,11 +24,11 @@
           class="mx-auto"
         >
           <v-card-title>
-            {{user.fullName}}
+            {{user.name}}
           </v-card-title>
 
           <v-card-subtitle class="card-subtitle">
-            {{user.phoneNumber}}
+            {{user['number']}}
           </v-card-subtitle>
           <v-card-subtitle class="card-subtitle">
             {{user.username}}

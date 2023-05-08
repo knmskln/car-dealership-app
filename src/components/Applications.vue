@@ -1,4 +1,29 @@
 <template>
+  <v-dialog
+    v-model="rateDialog"
+    style="max-width: 600px"
+    persistent
+  >
+    <v-card class="d-flex flex-column py-8 pb-0">
+      <div class="d-flex justify-center mt-auto text-h5 mb-2">
+        {{currentCarNameForRate}}
+      </div>
+
+      <div class="text-center">
+        <v-rating
+          color="yellow-darken-3"
+          v-model="rating"
+          hover
+        ></v-rating>
+        <pre>{{ rating || 'Ацаніце аўтамабіль'}}</pre>
+      </div>
+      <v-card-actions>
+        <v-btn @click="onCloseRateDialog" color="yellow-darken-3">Ацаніць</v-btn>
+        <v-btn @click="onCloseRateDialog" color="yellow-darken-3">пазней</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <v-container>
     <v-row justify="start" align="center">
       <v-col cols="5" v-for="(application, index) in applicationsStore.applications">
@@ -35,7 +60,7 @@
               prepend-icon="mdi-close"
               :loading="application.isSecondButtonLoading"
               :disabled="application.isSecondButtonLoading"
-              @click="onChangeApplicationStatus(application.id, 3, false, index)"
+              @click="onChangeApplicationStatus(application.id, 3, 2, index)"
             >
               адхіліць
             </v-btn>
@@ -55,7 +80,7 @@
               prepend-icon="mdi-close"
               :loading="application.isSecondButtonLoading"
               :disabled="application.isSecondButtonLoading"
-              @click="onChangeApplicationStatus(application.id, 3, false, index)"
+              @click="onChangeApplicationStatus(application.id, 3, 2, index)"
             >
               адхілць
             </v-btn>
@@ -81,10 +106,28 @@
           <v-card-actions v-if="application.status.name === 'COMPLETED'">
             <v-btn
               variant="text"
-              prepend-icon="mdi-clock-remove"
+              prepend-icon="mdi-check-all"
               disabled
             >
               завершана
+            </v-btn>
+            <v-btn
+              v-if="application.value"
+              variant="text"
+              prepend-icon="mdi-star"
+              color="yellow-darken-3"
+              @click="onOpenRateDialog(`${application.car.mark} ${application.car.model}`)"
+            >
+              ацаніць
+            </v-btn>
+            <v-btn
+              v-else
+              variant="text"
+              prepend-icon="mdi-star-check"
+              color="yellow-darken-3"
+              disabled
+            >
+              5
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -103,6 +146,9 @@ export default defineComponent({
   setup() {
     const applicationsStore = useApplicationsStore();
     const profileStore = useProfileStore();
+    const rateDialog = ref(false);
+    const rating = ref(0);
+    const currentCarNameForRate = ref('');
 
     onMounted(() => {
       if (profileStore.profileInfo)
@@ -111,13 +157,25 @@ export default defineComponent({
         })
     });
 
-    function onChangeApplicationStatus(orderId: number, statusId: number, isFirstButton: boolean, index: number){
-      applicationsStore.changeApplicationStatus(orderId, statusId, isFirstButton, index)
+    function onChangeApplicationStatus(orderId: number, statusId: number, buttonNumber: number, index: number){
+      applicationsStore.changeApplicationStatus(orderId, statusId, buttonNumber, index)
+    }
+    function onOpenRateDialog(carName: string) {
+      currentCarNameForRate.value = carName;
+      rateDialog.value = true;
+    }
+    function onCloseRateDialog() {
+      rateDialog.value = false;
     }
     return {
       applicationsStore,
+      rateDialog,
+      rating,
+      currentCarNameForRate,
 
-      onChangeApplicationStatus
+      onChangeApplicationStatus,
+      onOpenRateDialog,
+      onCloseRateDialog
     }
   }
 })

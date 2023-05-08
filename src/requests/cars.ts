@@ -23,3 +23,11 @@ export const getSlots = (): Promise<any> => {
 export const getCenters = (): Promise<any> => {
   return axios.get('http://localhost:8080/api/centers');
 }
+
+export const editCar = (car: CarType): Promise<any> => {
+  return axios.put(`http://localhost:8080/api/cars/${car.id}`, car);
+}
+
+export const deleteCar = (car: CarType): Promise<any> => {
+  return axios.delete(`http://localhost:8080/api/cars/${car.id}`);
+}

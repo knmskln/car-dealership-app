@@ -13,6 +13,7 @@
             icon
             dark
             @click="editCarDialog = false"
+            :disabled="carsStore.isCarEditFetching"
           >
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -22,28 +23,36 @@
           <form @submit.prevent="">
             <v-text-field
               label="Марка"
-              v-model="editCarDialogContent.mark"
+              v-model="currentEditCar.mark"
+              :disabled="carsStore.isCarEditFetching"
             ></v-text-field>
             <v-text-field
               label="Мадэль"
-              v-model="editCarDialogContent.model"
+              v-model="currentEditCar.model"
+              :disabled="carsStore.isCarEditFetching"
             ></v-text-field>
             <v-text-field
               label="Колер"
-              v-model="editCarDialogContent.color"
+              v-model="currentEditCar.color"
+              :disabled="carsStore.isCarEditFetching"
             ></v-text-field>
             <v-text-field
               label="Год"
-              v-model="editCarDialogContent.year"
+              v-model="currentEditCar.year"
+              :disabled="carsStore.isCarEditFetching"
             ></v-text-field>
             <v-text-field
               label="Кошт"
-              v-model="editCarDialogContent.price"
+              v-model="currentEditCar.price"
+              :disabled="carsStore.isCarEditFetching"
             ></v-text-field>
             <v-btn
               class="mb-4 w-100"
               variant="tonal"
               type="submit"
+              :disabled="carsStore.isCarEditFetching"
+              :loading="carsStore.isCarEditFetching"
+              @click="onEditCar()"
             >
               захаваць
             </v-btn>
@@ -53,6 +62,7 @@
               color="error"
               type="submit"
               @click="editCarDialog = false"
+              :disabled="carsStore.isCarEditFetching"
             >
               адмяніць
             </v-btn>
@@ -71,8 +81,21 @@
         Выдаліць аўтамабіль?
       </v-card-text>
       <v-card-actions>
-        <v-btn color="error" @click="deleteCarDialog = false">так, выдаліць</v-btn>
-        <v-btn color="primary" @click="deleteCarDialog = false">не, выпадкова націснуў</v-btn>
+        <v-btn
+          color="error"
+          @click="onDeleteCar"
+          :disabled="carsStore.isCarDeleteFetching"
+          :loading="carsStore.isCarDeleteFetching"
+        >
+          так, выдаліць
+        </v-btn>
+        <v-btn
+          color="primary"
+          @click="deleteCarDialog = false"
+          :disabled="carsStore.isCarDeleteFetching"
+        >
+          не, выпадкова націснуў
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -80,33 +103,35 @@
     v-model="statisticsCarDialog"
     style="max-width: 600px"
   >
-    <v-card class="d-flex flex-column py-8 pb-0">
+    <v-card class="d-flex flex-column py-8 pb-0" :loading="statisticsStore.isSpecificStatisticFetching">
+      <template v-if="currentStatistic">
       <div class="d-flex justify-center mt-auto text-h5 ">
-        Rating overview
+        {{currentStatistic.car.name}}
       </div>
 
       <div class="d-flex align-center flex-column my-auto">
         <div class="text-h2 mt-5">
-          3.5
+          {{currentStatistic.averageRate || 0}}
           <span class="text-h6 ml-n3">/5</span>
         </div>
 
         <v-rating
-          :model-value="3.5"
+          :model-value="currentStatistic.averageRate"
           color="yellow-darken-3"
           half-increments
+          disabled
         ></v-rating>
-        <div class="px-3">3,360 ratings</div>
+        <div class="px-3">{{currentStatistic.ratesAmount}} адзнак</div>
       </div>
 
       <v-list
         bg-color="transparent"
-        class="d-flex flex-column-reverse"
+        class="d-flex flex-column"
         density="compact"
       >
-        <v-list-item v-for="(rating,i) in 5" :key="i">
+        <v-list-item :key="1">
           <v-progress-linear
-            :model-value="rating * 15"
+            :model-value="currentStatistic.rating.five / currentStatistic.ratesAmount * 100"
             class="mx-n5"
             color="yellow-darken-3"
             height="20"
@@ -114,19 +139,104 @@
           ></v-progress-linear>
 
           <template v-slot:prepend>
-            <span>{{ rating }}</span>
+            <span>5</span>
             <v-icon icon="mdi-star" class="mx-3"></v-icon>
           </template>
 
           <template v-slot:append>
             <div class="rating-values">
-              <span class="d-flex justify-end"> {{ rating * 224 }} </span>
+              <span class="d-flex justify-end"> {{ currentStatistic.rating.five }} </span>
+            </div>
+          </template>
+        </v-list-item>
+
+        <v-list-item :key="2">
+          <v-progress-linear
+            :model-value="currentStatistic.rating.four / currentStatistic.ratesAmount * 100"
+            class="mx-n5"
+            color="yellow-darken-3"
+            height="20"
+            rounded
+          ></v-progress-linear>
+
+          <template v-slot:prepend>
+            <span>4</span>
+            <v-icon icon="mdi-star" class="mx-3"></v-icon>
+          </template>
+
+          <template v-slot:append>
+            <div class="rating-values">
+              <span class="d-flex justify-end"> {{ currentStatistic.rating.four }} </span>
+            </div>
+          </template>
+        </v-list-item>
+
+        <v-list-item :key="3">
+          <v-progress-linear
+            :model-value="currentStatistic.rating.three / currentStatistic.ratesAmount * 100"
+            class="mx-n5"
+            color="yellow-darken-3"
+            height="20"
+            rounded
+          ></v-progress-linear>
+
+          <template v-slot:prepend>
+            <span>3</span>
+            <v-icon icon="mdi-star" class="mx-3"></v-icon>
+          </template>
+
+          <template v-slot:append>
+            <div class="rating-values">
+              <span class="d-flex justify-end"> {{ currentStatistic.rating.three }} </span>
+            </div>
+          </template>
+        </v-list-item>
+
+        <v-list-item :key="4">
+          <v-progress-linear
+            :model-value="currentStatistic.rating.two / currentStatistic.ratesAmount * 100"
+            class="mx-n5"
+            color="yellow-darken-3"
+            height="20"
+            rounded
+          ></v-progress-linear>
+
+          <template v-slot:prepend>
+            <span>2</span>
+            <v-icon icon="mdi-star" class="mx-3"></v-icon>
+          </template>
+
+          <template v-slot:append>
+            <div class="rating-values">
+              <span class="d-flex justify-end"> {{ currentStatistic.rating.two }} </span>
+            </div>
+          </template>
+        </v-list-item>
+
+        <v-list-item :key="5">
+          <v-progress-linear
+            :model-value="currentStatistic.rating.one / currentStatistic.ratesAmount * 100"
+            class="mx-n5"
+            color="yellow-darken-3"
+            height="20"
+            rounded
+          ></v-progress-linear>
+
+          <template v-slot:prepend>
+            <span>1</span>
+            <v-icon icon="mdi-star" class="mx-3"></v-icon>
+          </template>
+
+          <template v-slot:append>
+            <div class="rating-values">
+              <span class="d-flex justify-end"> {{ currentStatistic.rating.one }} </span>
             </div>
           </template>
         </v-list-item>
       </v-list>
+      </template>
       <v-card-actions>
-        <v-btn color="yellow-darken-3" @click="statisticsCarDialog = false">схаваць</v-btn>
+        <v-btn @click="onCloseStatistic" color="yellow-darken-3">схаваць</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -162,7 +272,7 @@
             <v-card-actions>
               <v-btn
                 variant="text"
-                @click="editCarDialog = true"
+                @click="onEditCarDialog(car)"
                 icon="mdi-pencil"
                 size="small"
               ></v-btn>
@@ -170,14 +280,14 @@
                 variant="text"
                 icon="mdi-chart-box"
                 size="small"
-                @click="statisticsCarDialog = true"
+                @click="onShowStatistic(`${car.mark} ${car.model}`)"
               ></v-btn>
               <v-btn
                 variant="text"
                 color="error"
                 icon="mdi-delete"
                 size="small"
-                @click="deleteCarDialog = true"
+                @click="onDeleteCarDialog(car)"
               ></v-btn>
             </v-card-actions>
           </v-card>
@@ -191,20 +301,20 @@ import {addresses} from "@/mocks/addresses";
 import {slots} from "@/mocks/slots";
 import {defineComponent, onMounted, ref} from 'vue';
 import {useCarsStore} from "@/store/cars";
+import { useStatisticsStore } from "@/store/statistics";
+import { StatisticType } from "@/types/statistic";
+import {CarType} from "@/types/car";
 
 export default defineComponent({
   setup() {
     const carsStore = useCarsStore();
+    const statisticsStore = useStatisticsStore();
     const editCarDialog = ref(false);
     const deleteCarDialog = ref(false);
     const statisticsCarDialog = ref(false);
-    const editCarDialogContent = ref({
-      mark: 'Geely',
-      model: 'Atlas Pro',
-      year: '2023',
-      color: 'Белы',
-      price: 'ад 73 950 BYN',
-    });
+    const currentEditCar = ref<CarType | null>(null);
+    const currentDeleteCar = ref<CarType | null>(null);
+    const currentStatistic = ref<StatisticType | null>(null);
     const place = ref('');
     const dateTime = ref('');
 
@@ -214,20 +324,56 @@ export default defineComponent({
       }
     });
 
-    function onSubmitApplication(){}
+    async function onShowStatistic(carName: string){
+      statisticsCarDialog.value = true;
+      currentStatistic.value = await statisticsStore.findStatistic(carName);
+    }
+    function onCloseStatistic(){
+      statisticsCarDialog.value = false;
+      currentStatistic.value = null;
+    }
+
+    function onEditCarDialog(car: CarType){
+      currentEditCar.value = {...car};
+      editCarDialog.value = true;
+    }
+    function onEditCar(){
+      if(currentEditCar.value)
+        carsStore.editCar(currentEditCar.value).then(() => {
+          editCarDialog.value = false;
+        })
+    }
+    function onDeleteCarDialog(car: CarType){
+      currentDeleteCar.value = {...car};
+      deleteCarDialog.value = true;
+    }
+    function onDeleteCar(){
+      if(currentDeleteCar.value){
+        carsStore.deleteCar(currentDeleteCar.value).then(() => {
+          deleteCarDialog.value = false;
+        })
+      }
+    }
 
     return {
       editCarDialog,
-      editCarDialogContent,
+      currentEditCar,
       statisticsCarDialog,
       deleteCarDialog,
+      currentStatistic,
       place,
       dateTime,
       addresses,
       slots,
 
       carsStore,
-      onSubmitApplication
+      statisticsStore,
+      onShowStatistic,
+      onCloseStatistic,
+      onEditCarDialog,
+      onDeleteCarDialog,
+      onEditCar,
+      onDeleteCar
     }
   }
 })

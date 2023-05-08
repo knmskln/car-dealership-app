@@ -24,7 +24,7 @@
               variant="text"
               color="success"
               prepend-icon="mdi-check"
-              @click="onChangeApplicationStatus(application.id, 2, false, index)"
+              @click="onChangeApplicationStatus(application.id, 2, 1, index)"
             >
               адобрыць
             </v-btn>
@@ -32,7 +32,7 @@
               variant="text"
               color="error"
               prepend-icon="mdi-cancel"
-              @click="onChangeApplicationStatus(application.id, 5, false, index)"
+              @click="onChangeApplicationStatus(application.id, 5, 2, index)"
             >
               адмовіць
             </v-btn>
@@ -46,14 +46,23 @@
             >
               ухвалена
             </v-btn>
-
+            <v-btn
+              variant="text"
+              color="success"
+              prepend-icon="mdi-check-all"
+              :loading="application.isThirdButtonLoading"
+              :disabled="application.isThirdButtonLoading"
+              @click="onChangeApplicationStatus(application.id, 4, 3, index)"
+            >
+              завяршыць
+            </v-btn>
             <v-btn
               variant="text"
               color="error"
               prepend-icon="mdi-cancel"
-              :loading="application.isSecondButtonLoading"
-              :disabled="application.isSecondButtonLoading"
-              @click="onChangeApplicationStatus(application.id, 5, false, index)"
+              :loading="application.isThirdButtonLoading"
+              :disabled="application.isThirdButtonLoading"
+              @click="onChangeApplicationStatus(application.id, 5, 3, index)"
             >
               адмовіць
             </v-btn>
@@ -79,7 +88,7 @@
           <v-card-actions v-if="application.status.name === 'COMPLETED'">
             <v-btn
               variant="text"
-              prepend-icon="mdi-clock-remove"
+              prepend-icon="mdi-check-all"
               disabled
             >
               завершана
@@ -102,19 +111,22 @@ export default defineComponent({
     const applicationsStore = useApplicationsStore();
     const profileStore = useProfileStore();
 
+
     onMounted(() => {
       if (profileStore.profileInfo)
         applicationsStore.findApplications(true, profileStore.profileInfo.id).then((resp) => {
           console.log(resp)
         })
     })
-    function onChangeApplicationStatus(orderId: number, statusId: number, isFirstButton: boolean, index: number){
-      applicationsStore.changeApplicationStatus(orderId, statusId, isFirstButton, index)
+    function onChangeApplicationStatus(orderId: number, statusId: number, buttonNumber: number, index: number){
+      applicationsStore.changeApplicationStatus(orderId, statusId, buttonNumber, index)
     }
+
     return {
       applicationsStore,
 
-      onChangeApplicationStatus
+      onChangeApplicationStatus,
+
     }
   }
 })

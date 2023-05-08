@@ -58,17 +58,20 @@ export const useApplicationsStore = defineStore({
       }
     },
 
-    async changeApplicationStatus(orderId: number, statusId: number, isFirstButton: boolean, index: number): Promise<any>{
-      if(isFirstButton){
+    async changeApplicationStatus(orderId: number, statusId: number, buttonNumber: number, index: number): Promise<any>{
+      if(buttonNumber === 1){
         this.applications[index].isFirstButtonLoading = true;
-      } else {
+      } else if(buttonNumber === 2) {
         this.applications[index].isSecondButtonLoading = true;
+      } else {
+        this.applications[index].isThirdButtonLoading = true;
       }
       let applicationResp;
       try {
         applicationResp = await applicationsRequests.changeApplicationStatus(orderId, statusId);
         this.applications[index].isFirstButtonLoading = false;
         this.applications[index].isSecondButtonLoading = false;
+        this.applications[index].isThirdButtonLoading = false;
         this.applications[index].status.id = applicationResp.data.status.id;
         this.applications[index].status.name = applicationResp.data.status.name;
 
@@ -76,6 +79,7 @@ export const useApplicationsStore = defineStore({
       } catch (e: any) {
         this.applications[index].isFirstButtonLoading = false;
         this.applications[index].isSecondButtonLoading = false;
+        this.applications[index].isThirdButtonLoading = false;
         throw new Error(e);
       }
     }

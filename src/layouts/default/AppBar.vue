@@ -12,7 +12,8 @@
           <v-btn
             icon
             dark
-            @click="carsStore.toggleAddNewCarDialogMode(false)"
+            @click="onClose"
+            :disabled="carsStore.isCarCreateFetching"
           >
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -27,32 +28,39 @@
               placeholder="Изображение"
               label="Изображение"
               append-inner-icon="mdi-camera"
+              :disabled="carsStore.isCarCreateFetching"
             ></v-file-input>
             <v-text-field
               v-model="mark"
               label="Марка"
+              :disabled="carsStore.isCarCreateFetching"
             ></v-text-field>
             <v-text-field
               v-model="model"
               label="Мадэль"
+              :disabled="carsStore.isCarCreateFetching"
             ></v-text-field>
             <v-text-field
               v-model="color"
               label="Колер"
+              :disabled="carsStore.isCarCreateFetching"
             ></v-text-field>
             <v-text-field
               v-model="year"
               label="Год"
+              :disabled="carsStore.isCarCreateFetching"
             ></v-text-field>
             <v-text-field
               v-model="price"
               label="Кошт"
+              :disabled="carsStore.isCarCreateFetching"
             ></v-text-field>
             <v-btn
               class="me-4 w-100"
               variant="tonal"
               type="submit"
               @click="onSubmit"
+              :disabled="carsStore.isCarCreateFetching"
             >
               Дадаць аўтамабіль
             </v-btn>
@@ -64,9 +72,7 @@
 
   <v-app-bar flat class="border-b">
     <v-app-bar-title>
-      <v-icon class="mr-2" icon="mdi-car">
-      </v-icon>
-      geely
+      GEELY
     </v-app-bar-title>
     <v-spacer></v-spacer>
     <!--    <template v-if="true">-->
@@ -170,7 +176,14 @@ export default defineComponent({
       reader.onload = () => resolve(reader.result);
       reader.onerror = reject;
     });
-
+    function clearNewCarData() {
+      mark.value = '';
+      model.value = '';
+      color.value = '';
+      imagePath.value = null;
+      price.value = '';
+      year.value = '';
+    }
     async function onSubmit() {
       const imageBase64 = await toBase64(imagePath.value[0]) as string;
       await carsStore.addCar({
@@ -181,8 +194,11 @@ export default defineComponent({
         price: +price.value,
         year: +year.value,
       });
-      console.log(imagePath.value);
-      console.log(await toBase64(imagePath.value[0]));
+      clearNewCarData();
+    }
+    function onClose() {
+      carsStore.toggleAddNewCarDialogMode(false);
+      clearNewCarData();
     }
 
     const rules = [
@@ -202,7 +218,8 @@ export default defineComponent({
       year,
       price,
       color,
-      onSubmit
+      onSubmit,
+      onClose
     };
   }
 })
@@ -210,6 +227,6 @@ export default defineComponent({
 </script>
 <style>
 .v-input__prepend {
-  display: none;
+  display: none !important;
 }
 </style>

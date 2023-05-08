@@ -11,6 +11,8 @@ export interface ApplicationType {
   user: UserType,
   status: StatusType,
   date: DateType,
+  rate: number,
   isFirstButtonLoading: boolean,
   isSecondButtonLoading: boolean,
+  isThirdButtonLoading: boolean,
 }
