@@ -25,8 +25,8 @@
               :rules="rules"
               v-model="imagePath"
               accept="image/png, image/jpeg, image/bmp"
-              placeholder="Изображение"
-              label="Изображение"
+              placeholder="Малюнак"
+              label="Малюнак"
               append-inner-icon="mdi-camera"
               :disabled="carsStore.isCarCreateFetching"
             ></v-file-input>

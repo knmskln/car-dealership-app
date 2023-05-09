@@ -11,3 +11,7 @@ export const createApplication = (application: any): Promise<any> => {
 export const changeApplicationStatus = (orderId: number, statusId: number): Promise<any> => {
   return axios.patch(`http://localhost:8080/api/orders`, {orderId, statusId});
 }
+
+export const rateApplication = (orderId: number, value: number): Promise<any> => {
+  return axios.patch(`http://localhost:8080/api/rate`, {orderId, value});
+}

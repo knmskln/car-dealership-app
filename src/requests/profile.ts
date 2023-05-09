@@ -1,21 +1,26 @@
 import {users} from "@/mocks/users";
 import axios from "axios";
+import {UserType} from "@/types/user";
 
 export const signIn = (username: string, password: string): Promise<any> => {
   return axios.post('http://localhost:8080/api/auth/signin', {username, password});
-  // return new Promise((resolve, reject) => {
-  //   const user = users.find(u => u.username === username && u.password === password);
-  //   console.log(user);
-  //   if(user) setTimeout(resolve, 1000, user);
-  //   else setTimeout(reject, 1000, {message: 'Няправільнае імя карыстальніка або пароль'});
-  // });
 }
 
-export const signUp = (username: string, password: string): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    const newUser = {id: users.length, username, password};
-    // users.push(newUser);
-    setTimeout(resolve, 1000, newUser);
+export const signUp = (signUpData: UserType): Promise<any> => {
+  return axios.post('http://localhost:8080/api/auth/signup', signUpData);
+}
+
+export const changePassword = (userId: number, newPassword: string): Promise<any> => {
+  return axios.patch(`http://localhost:8080/api/users/${userId}`, {userId, newPassword});
+}
+
+export const changeProfileData = (profileData: UserType): Promise<any> => {
+  return axios.put(`http://localhost:8080/api/users/${profileData.id}`, {
+    userId: profileData.id,
+    name: profileData.name,
+    username: profileData.username,
+    number: profileData.number,
+    email: profileData.email
   });
 }
 

@@ -80,6 +80,7 @@ export const useCarsStore = defineStore({
       let slotsResp;
       try {
         slotsResp = await carsRequests.getSlots();
+        slotsResp.data = slotsResp.data.map((slot: any) => ({...slot, date: new Date(slot.date).toLocaleString('be-BY')}))
         this.availableSlots = slotsResp.data;
 
         return slotsResp.data;
@@ -98,5 +99,9 @@ export const useCarsStore = defineStore({
         throw new Error(e);
       }
     },
+    clearApplicationData(){
+      this.availableCenters = [];
+      this.availableSlots = [];
+    }
   }
 });

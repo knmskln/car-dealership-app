@@ -10,6 +10,9 @@ export const useStatisticsStore = defineStore({
     isSpecificStatisticFetching: false,
   }),
   actions: {
+    roundToHalf(num: number) {
+      return Math.round(num * 2) / 2;
+    },
     async findStatistics(): Promise<any> {
       this.statistics = [];
       let applicationsResp;
@@ -59,23 +62,23 @@ export const useStatisticsStore = defineStore({
         this.statistics = this.statistics.map(el => {
           let divider = 0;
           if(el.rating.five){
-            divider++;
+            divider+=el.rating.five;
           }
           if(el.rating.four){
-            divider++;
+            divider+=el.rating.four;
           }
           if(el.rating.three){
-            divider++;
+            divider+=el.rating.three;
           }
           if(el.rating.two){
-            divider++;
+            divider+=el.rating.two;
           }
           if(el.rating.one){
-            divider++;
+            divider+=el.rating.one;
           }
           const averageRate =
             (5*el.rating.five + 4*el.rating.four + 3*el.rating.three + 2*el.rating.two + el.rating.one) / divider;
-          return {...el, averageRate };
+          return {...el, averageRate: this.roundToHalf(averageRate) };
         })
         this.isStatisticsFetching = false;
         console.log(this.statistics);

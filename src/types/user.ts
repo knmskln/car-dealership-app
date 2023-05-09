@@ -1,8 +1,8 @@
 export interface UserType {
   id: number,
   username: string,
-  fullName: string,
-  phoneNumber: string,
+  name: string,
+  number: string,
   email: string,
   password: string,
 }

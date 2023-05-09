@@ -1,8 +1,9 @@
 <template>
   <v-dialog
     v-model="applyForTestDriveDialog"
-    style="max-width: 500px"
+    style="max-width: 500px;"
     persistent
+    eager
   >
     <v-card>
       <div>
@@ -16,26 +17,28 @@
           >
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <v-toolbar-title>Записаться на тест-драйв</v-toolbar-title>
+          <v-toolbar-title>Запісацца на тэст-драйв</v-toolbar-title>
         </v-toolbar>
         <div class="pa-4">
           <form @submit.prevent="onSubmitApplication">
             <v-select
               v-model="selectedSlot"
               :disabled="!carsStore.availableSlots.length"
-              label="Выберите дату и время"
+              label="Абярыце дату і час"
               :items="carsStore.availableSlots"
               item-title="date"
               item-value="id"
+              eager
             ></v-select>
 
             <v-select
               v-model="selectedCenter"
               :disabled="!carsStore.availableCenters.length"
-              label="Выберите центр"
+              label="Абярыце цэнтр"
               :items="carsStore.availableCenters"
               item-title="address"
               item-value="id"
+              eager
             ></v-select>
 
             <v-btn
@@ -45,7 +48,7 @@
               :loading="applicationsStore.isApplicationCreating"
               :disabled="!selectedCenter || !selectedSlot || applicationsStore.isApplicationCreating"
             >
-              записаться
+              запісацца
             </v-btn>
           </form>
         </div>
@@ -74,18 +77,18 @@
             ></v-img>
 
             <v-card-title>
-              {{`${car.mark} ${car.model}`}}
+              {{ `${car.mark} ${car.model}` }}
             </v-card-title>
 
             <v-card-subtitle>
-              Кошт {{car.price}} BYN
+              Кошт {{ car.price }} BYN
             </v-card-subtitle>
 
             <v-card-actions>
               <v-btn
                 variant="text"
                 color="primary"
-                @click="applyForTestDriveDialog = true; carIdForApply = car.id"
+                @click="onOpenApplicationDialog(car)"
               >
                 запісацца на тэст-драйв
               </v-btn>
@@ -99,10 +102,12 @@
 <script lang="ts">
 import {addresses} from "@/mocks/addresses";
 import {slots} from "@/mocks/slots";
-import {defineComponent, onMounted, ref} from 'vue';
+import {defineComponent, onMounted, ref, watch, watchEffect} from 'vue';
 import {useCarsStore} from "@/store/cars";
 import {useApplicationsStore} from "@/store/applications";
 import {useProfileStore} from "@/store/profile";
+import {CarType} from "@/types/car";
+import router from "@/router";
 
 export default defineComponent({
   setup() {
@@ -116,6 +121,10 @@ export default defineComponent({
     const selectedSlot = ref(undefined);
     const selectedCenter = ref(undefined);
     const carIdForApply = ref(0);
+    watch(applyForTestDriveDialog, () => {
+      if (document.documentElement)
+        document.documentElement.style.overflow = applyForTestDriveDialog.value ? 'hidden' : 'visible'
+    });
 
     onMounted(() => {
       if (!carsStore.cars.length) {
@@ -125,15 +134,30 @@ export default defineComponent({
       carsStore.getSlots();
     });
 
-    function onSubmitApplication(){
-      console.log(selectedCenter.value, selectedSlot.value);
+    async function onOpenApplicationDialog(car: CarType) {
+      if (!profileStore.isLoggedIn()) {
+        router.replace('/signin');
+      } else {
+        carsStore.clearApplicationData();
+        applyForTestDriveDialog.value = true;
+        await carsStore.getSlots();
+        await carsStore.getCenters();
+        carIdForApply.value = car.id as number;
+      }
+    }
+
+    function onSubmitApplication() {
       applicationsStore.createApplication({
         userId: profileStore.profileInfo?.id,
         dateId: selectedSlot.value,
         dealerCenterId: selectedCenter.value,
         statusId: 1,
         carId: carIdForApply.value
-      }).then(() => {applyForTestDriveDialog.value = false});
+      }).then(() => {
+        applyForTestDriveDialog.value = false;
+        selectedSlot.value = undefined;
+        selectedCenter.value = undefined;
+      });
     }
 
     return {
@@ -148,6 +172,7 @@ export default defineComponent({
 
       carsStore,
       applicationsStore,
+      onOpenApplicationDialog,
       onSubmitApplication
     }
   }

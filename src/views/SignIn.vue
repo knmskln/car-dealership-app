@@ -97,7 +97,6 @@ export default defineComponent({
     });
 
     const onSubmitSignIn = onHandleSignIn(values => {
-      // alert(JSON.stringify(values, null, 2))
       profileStore.signIn(values.username, values.password).then(response => {
         router.replace('/cars');
       });

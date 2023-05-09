@@ -1,4 +1,19 @@
 <template>
+  <v-snackbar
+    v-model="profileStore.signUpErrorActive"
+    timeout="5000"
+    color="error"
+  >
+    {{ profileStore.signUpErrorText }}
+    <template v-slot:actions>
+      <v-btn
+        variant="plain"
+        icon="mdi-close"
+        @click="profileStore.hideSignUpError()"
+      ></v-btn>
+    </template>
+  </v-snackbar>
+
   <v-main>
     <v-container fluid style="max-width: 500px">
       <v-row no-gutters justify="center" align="center">
@@ -13,32 +28,34 @@
               ></v-text-field>
 
               <v-text-field
-                v-model="username.value.value"
-                :error-messages="username.errorMessage.value"
+                v-model="name.value.value"
+                :error-messages="name.errorMessage.value"
                 label="Прозвішча, імя, імя па бацьку"
               ></v-text-field>
 
               <v-text-field
-                v-model="username.value.value"
-                :error-messages="username.errorMessage.value"
+                v-model="number.value.value"
+                :error-messages="number.errorMessage.value"
                 label="Нумар тэлефона"
               ></v-text-field>
 
               <v-text-field
-                v-model="username.value.value"
-                :error-messages="username.errorMessage.value"
+                v-model="email.value.value"
+                :error-messages="email.errorMessage.value"
                 label="E-Mail адрас"
               ></v-text-field>
 
               <v-text-field
                 v-model="password.value.value"
                 :error-messages="password.errorMessage.value"
+                type="password"
                 label="Пароль"
               ></v-text-field>
 
               <v-text-field
                 v-model="passwordRepeat.value.value"
                 :error-messages="passwordRepeat.errorMessage.value"
+                type="password"
                 label="Паўтарыце пароль"
               ></v-text-field>
               <v-checkbox
@@ -52,7 +69,8 @@
                 class="me-4 w-100 mb-4"
                 variant="tonal"
                 type="submit"
-                :disabled="isFormValid"
+                :disabled="isFormValid || profileStore.isSignUpFetching"
+                :loading="profileStore.isSignUpFetching"
               >
                 зарэгістравацца
               </v-btn>
@@ -67,28 +85,47 @@
 <script lang="ts">
 import {computed, defineComponent} from 'vue';
 import {useField, useForm, useIsFormDirty, useIsFormValid} from "vee-validate";
+import {useProfileStore} from "@/store/profile";
+import router from "@/router";
+import {UserType} from "@/types/user";
 
 export default defineComponent({
   setup() {
+    const profileStore = useProfileStore();
     const {
       handleSubmit: onHandleSignUp,
     } = useForm({
       validationSchema: {
         username (value: string) {
           if (value?.length) return true
-          return 'username can not be empty.'
+          return 'імя карыстальніка не можа быць пустым'
+        },
+        name (value: string) {
+          if (value?.length) return true
+          return 'імя, прозвішча і імя па бацьку не можа быць пустым'
+        },
+        number (value: string) {
+          if (value?.length) return true
+          return 'нумар тэлефона не можа быць пустым'
+        },
+        email (value: string) {
+          if (value?.length) return true
+          return 'E-Mail не можа быць пустым'
         },
         password (value: string) {
           if (value?.length > 8) return true
-          return 'password length needs to be more than 8 symbols'
+          return 'даўжыня пароля павінна быць больш за 8 сімвалаў'
         },
         passwordRepeat (value: string) {
           if (value === password.value.value) return true
-          return 'passwords are not equal'
+          return 'паролі не супадаюць'
         }
       },
     });
     const username = useField('username');
+    const name = useField('name');
+    const number = useField('number');
+    const email = useField('email');
     const password = useField('password');
     const passwordRepeat = useField('passwordRepeat');
     const keepMeSigned = useField('keepMeSigned');
@@ -102,14 +139,20 @@ export default defineComponent({
     });
 
     const onSubmitSignUp = onHandleSignUp(values => {
-      alert(JSON.stringify(values, null, 2))
+      profileStore.signUp(values as UserType).then(() => {
+        router.replace('/cars');
+      });
     });
 
     return {
       username,
       password,
+      name,
+      number,
+      email,
       passwordRepeat,
       keepMeSigned,
+      profileStore,
 
       isFormValid,
       onSubmitSignUp,

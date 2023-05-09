@@ -6,6 +6,8 @@ export const useApplicationsStore = defineStore({
   id: 'applications',
   state: () => ({
     applications: [] as ApplicationType[],
+    isRatingDialog: false,
+    isRatingFetching: false,
     isApplicationsFetching: false,
     isApplicationCreating: false,
   }),
@@ -80,6 +82,23 @@ export const useApplicationsStore = defineStore({
         this.applications[index].isFirstButtonLoading = false;
         this.applications[index].isSecondButtonLoading = false;
         this.applications[index].isThirdButtonLoading = false;
+        throw new Error(e);
+      }
+    },
+    toggleRateDialog(isOpen: boolean){
+      this.isRatingDialog = isOpen;
+    },
+    async createApplicationRate(orderId: number, value:  number): Promise<any> {
+      try {
+        this.isRatingFetching = true;
+        await applicationsRequests.rateApplication(orderId, value);
+        const position = this.applications.findIndex(appForEdit => appForEdit.id === orderId);
+        this.applications[position].value = value;
+        this.isRatingFetching = false;
+        this.isRatingDialog = false;
+      } catch (e: any) {
+        this.isRatingFetching = false;
+        console.log(e);
         throw new Error(e);
       }
     }

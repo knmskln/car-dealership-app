@@ -16,7 +16,7 @@
           </v-card-title>
 
           <v-card-subtitle>
-            Запіс на тэст-драйв {{ application.date.date }}
+            Запіс на тэст-драйв {{ new Date(application.date.date).toLocaleString('be-BY') }}
           </v-card-subtitle>
 
           <v-card-actions v-if="application.status.name === 'IN_PROGRESS'">
@@ -36,6 +36,11 @@
             >
               адмовіць
             </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              :icon="application.show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+              @click="application.show = !application.show"
+            ></v-btn>
           </v-card-actions>
           <v-card-actions v-if="application.status.name === 'APPROVED'">
             <v-btn
@@ -56,16 +61,11 @@
             >
               завяршыць
             </v-btn>
+            <v-spacer></v-spacer>
             <v-btn
-              variant="text"
-              color="error"
-              prepend-icon="mdi-cancel"
-              :loading="application.isThirdButtonLoading"
-              :disabled="application.isThirdButtonLoading"
-              @click="onChangeApplicationStatus(application.id, 5, 3, index)"
-            >
-              адмовіць
-            </v-btn>
+              :icon="application.show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+              @click="application.show = !application.show"
+            ></v-btn>
           </v-card-actions>
           <v-card-actions v-if="application.status.name === 'CANCELED'">
             <v-btn
@@ -75,6 +75,11 @@
             >
               адхілена
             </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              :icon="application.show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+              @click="application.show = !application.show"
+            ></v-btn>
           </v-card-actions>
           <v-card-actions v-if="application.status.name === 'REJECTED'">
             <v-btn
@@ -84,6 +89,11 @@
             >
               адмоўлена
             </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              :icon="application.show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+              @click="application.show = !application.show"
+            ></v-btn>
           </v-card-actions>
           <v-card-actions v-if="application.status.name === 'COMPLETED'">
             <v-btn
@@ -93,7 +103,23 @@
             >
               завершана
             </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              :icon="application.show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+              @click="application.show = !application.show"
+            ></v-btn>
           </v-card-actions>
+          <v-expand-transition>
+            <div v-show="application.show">
+              <v-divider></v-divider>
+
+              <v-card-text>
+                Імя карыстальніка: {{application.user.username}}<br/>
+                Імя: {{application.user.name}}<br/>
+                Нумар тэлефона: {{application.user.number}}
+              </v-card-text>
+            </div>
+          </v-expand-transition>
         </v-card>
       </v-col>
     </v-row>

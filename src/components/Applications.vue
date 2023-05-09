@@ -1,25 +1,37 @@
 <template>
   <v-dialog
-    v-model="rateDialog"
+    v-model="applicationsStore.isRatingDialog"
     style="max-width: 600px"
     persistent
   >
     <v-card class="d-flex flex-column py-8 pb-0">
       <div class="d-flex justify-center mt-auto text-h5 mb-2">
-        {{currentCarNameForRate}}
+        {{`${currentCarNameForRate.car.mark} ${currentCarNameForRate.car.model}`}}
       </div>
 
       <div class="text-center">
         <v-rating
           color="yellow-darken-3"
+          :disabled="applicationsStore.isRatingFetching"
           v-model="rating"
-          hover
+          :hover="!applicationsStore.isRatingFetching"
         ></v-rating>
         <pre>{{ rating || 'Ацаніце аўтамабіль'}}</pre>
       </div>
       <v-card-actions>
-        <v-btn @click="onCloseRateDialog" color="yellow-darken-3">Ацаніць</v-btn>
-        <v-btn @click="onCloseRateDialog" color="yellow-darken-3">пазней</v-btn>
+        <v-btn
+          @click="onCreateRating"
+          color="yellow-darken-3"
+          :disabled="applicationsStore.isRatingFetching"
+          :loading="applicationsStore.isRatingFetching"
+        >
+          Ацаніць
+        </v-btn>
+        <v-btn
+          @click="onCloseRateDialog"
+          color="yellow-darken-3"
+          :disabled="applicationsStore.isRatingFetching"
+        >пазней</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -41,7 +53,7 @@
           </v-card-title>
 
           <v-card-subtitle>
-            Запіс на тэст-драйв {{ application.date.date }}
+            Запіс на тэст-драйв {{ new Date(application.date.date).toLocaleString('be-BY') }}
           </v-card-subtitle>
 
           <v-card-actions v-if="application.status.name === 'APPROVED'">
@@ -112,11 +124,11 @@
               завершана
             </v-btn>
             <v-btn
-              v-if="application.value"
+              v-if="!application.value"
               variant="text"
               prepend-icon="mdi-star"
               color="yellow-darken-3"
-              @click="onOpenRateDialog(`${application.car.mark} ${application.car.model}`)"
+              @click="onOpenRateDialog(application)"
             >
               ацаніць
             </v-btn>
@@ -127,7 +139,7 @@
               color="yellow-darken-3"
               disabled
             >
-              5
+              {{application.value}}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -141,6 +153,7 @@ import {useProfileStore} from "@/store/profile";
 import router from "@/router";
 import {useField, useForm, useIsFormDirty, useIsFormValid} from "vee-validate";
 import {useApplicationsStore} from "@/store/applications";
+import {ApplicationType} from "@/types/application";
 
 export default defineComponent({
   setup() {
@@ -148,7 +161,8 @@ export default defineComponent({
     const profileStore = useProfileStore();
     const rateDialog = ref(false);
     const rating = ref(0);
-    const currentCarNameForRate = ref('');
+    const currentCarNameForRate = ref<ApplicationType | null>(null);
+    const isCarRatingFetching = ref(false)
 
     onMounted(() => {
       if (profileStore.profileInfo)
@@ -160,22 +174,32 @@ export default defineComponent({
     function onChangeApplicationStatus(orderId: number, statusId: number, buttonNumber: number, index: number){
       applicationsStore.changeApplicationStatus(orderId, statusId, buttonNumber, index)
     }
-    function onOpenRateDialog(carName: string) {
-      currentCarNameForRate.value = carName;
-      rateDialog.value = true;
+    function onOpenRateDialog(application: ApplicationType) {
+      currentCarNameForRate.value = application;
+      applicationsStore.toggleRateDialog(true);
     }
     function onCloseRateDialog() {
-      rateDialog.value = false;
+      rating.value = 0;
+      applicationsStore.toggleRateDialog(false);
+    }
+    function onCreateRating(){
+      if(currentCarNameForRate.value && rating.value) {
+        applicationsStore.createApplicationRate(currentCarNameForRate.value.id, rating.value).then(() => {
+          rating.value = 0;
+        })
+      }
     }
     return {
       applicationsStore,
       rateDialog,
       rating,
       currentCarNameForRate,
+      isCarRatingFetching,
 
       onChangeApplicationStatus,
       onOpenRateDialog,
-      onCloseRateDialog
+      onCloseRateDialog,
+      onCreateRating
     }
   }
 })
